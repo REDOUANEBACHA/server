@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
+import { notifyNewCourse } from "../services/notifications.js";
 
 export const coursesRouter = Router();
 
@@ -69,6 +70,9 @@ coursesRouter.post("/", async (req, res) => {
       },
       include: { courseHoles: true },
     });
+    // Notify all users about the new course (non-blocking)
+    notifyNewCourse(course.name, course.city).catch(() => {});
+
     res.status(201).json(course);
   } catch {
     res.status(500).json({ error: "Failed to create course" });

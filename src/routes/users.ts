@@ -58,10 +58,14 @@ usersRouter.get("/email/:email", async (req, res) => {
 // Update user
 usersRouter.patch("/:id", async (req, res) => {
   try {
-    const { name, handicap } = req.body;
+    const { name, handicap, pushToken } = req.body;
     const user = await prisma.user.update({
       where: { id: req.params.id },
-      data: { ...(name && { name }), ...(handicap !== undefined && { handicap }) },
+      data: {
+        ...(name && { name }),
+        ...(handicap !== undefined && { handicap }),
+        ...(pushToken && { pushToken }),
+      },
     });
     res.json(user);
   } catch {

@@ -12,6 +12,7 @@ model User {
   name      String
   email     String   @unique
   handicap  Float    @default(54.0)
+  pushToken String?
   createdAt DateTime @default(now())
   rounds    Round[]
 

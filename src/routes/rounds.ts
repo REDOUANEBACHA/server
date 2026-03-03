@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
+import { notifyHandicapUpdate, notifyRoundSummary } from "../services/notifications.js";
 
 export const roundsRouter = Router();
 
@@ -7,6 +8,11 @@ export const roundsRouter = Router();
 roundsRouter.post("/", async (req, res) => {
   try {
     const { userId, courseId, totalScore, totalPar, weather, notes, scores } = req.body;
+
+    // Get old handicap before creating round
+    const userBefore = await prisma.user.findUnique({ where: { id: userId } });
+    const oldHandicap = userBefore?.handicap ?? 54;
+
     const round = await prisma.round.create({
       data: {
         userId,
@@ -25,6 +31,13 @@ roundsRouter.post("/", async (req, res) => {
 
     // Recalculate handicap after new round
     await recalculateHandicap(userId);
+
+    // Send notifications (non-blocking)
+    const userAfter = await prisma.user.findUnique({ where: { id: userId } });
+    if (userAfter && userAfter.handicap !== oldHandicap) {
+      notifyHandicapUpdate(userId, oldHandicap, userAfter.handicap).catch(() => {});
+    }
+    notifyRoundSummary(userId, round.course.name, totalScore, totalPar).catch(() => {});
 
     res.status(201).json(round);
   } catch (error) {
