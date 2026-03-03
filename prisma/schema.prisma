@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  handicap  Float    @default(54.0)
+  createdAt DateTime @default(now())
+  rounds    Round[]
+
+  @@map("users")
+}
+
+model Course {
+  id        String       @id @default(cuid())
+  name      String
+  city      String
+  country   String
+  latitude  Float
+  longitude Float
+  holes     Int          @default(18)
+  par       Int
+  rounds    Round[]
+  courseHoles CourseHole[]
+
+  @@map("courses")
+}
+
+model CourseHole {
+  id       String @id @default(cuid())
+  courseId  String
+  number   Int
+  par      Int
+  distance Int
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, number])
+  @@map("course_holes")
+}
+
+model Round {
+  id         String      @id @default(cuid())
+  userId     String
+  courseId    String
+  date       DateTime    @default(now())
+  totalScore Int
+  totalPar   Int
+  weather    String?
+  notes      String?
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  scores     HoleScore[]
+
+  @@map("rounds")
+}
+
+model HoleScore {
+  id      String   @id @default(cuid())
+  roundId String
+  hole    Int
+  score   Int
+  putts   Int?
+  fairway Boolean?
+  gir     Boolean?
+  round   Round    @relation(fields: [roundId], references: [id], onDelete: Cascade)
+
+  @@unique([roundId, hole])
+  @@map("hole_scores")
+}
