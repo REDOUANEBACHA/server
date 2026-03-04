@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-//test
-const prisma = new PrismaClient();
+//test 1
+
+//test 2
+const prisma =   new PrismaClient();
 
 const courses = [
   {
