@@ -1,8 +1,22 @@
 import { PrismaClient } from "@prisma/client";
-//test 1
 
-//test 2
-const prisma =   new PrismaClient();
+const prisma = new PrismaClient();
+
+// Helper: offset coordinates for each hole (simulates green positions spread across the course)
+function generateHoleCoords(centerLat: number, centerLng: number, holes: { number: number; par: number; distance: number }[]) {
+  // At ~45° latitude: 1° lat ≈ 111km, 1° lng ≈ 78km
+  // Holes spread in a loop pattern around the clubhouse
+  const angles = holes.map((_, i) => (i / holes.length) * 2 * Math.PI);
+  return holes.map((h, i) => {
+    // Distance from center increases with hole number (outward first 9, back last 9)
+    const radius = i < 9 ? 0.002 + i * 0.0004 : 0.005 - (i - 9) * 0.0004;
+    return {
+      ...h,
+      latitude: centerLat + radius * Math.cos(angles[i]),
+      longitude: centerLng + radius * Math.sin(angles[i]) * 1.4, // adjust for longitude scale
+    };
+  });
+}
 
 const courses = [
   {
@@ -13,7 +27,7 @@ const courses = [
     longitude: 2.0735,
     holes: 18,
     par: 72,
-    courseHoles: [
+    courseHoles: generateHoleCoords(48.7545, 2.0735, [
       { number: 1, par: 4, distance: 380 },
       { number: 2, par: 4, distance: 410 },
       { number: 3, par: 3, distance: 175 },
@@ -32,7 +46,7 @@ const courses = [
       { number: 16, par: 3, distance: 190 },
       { number: 17, par: 4, distance: 430 },
       { number: 18, par: 5, distance: 530 },
-    ],
+    ]),
   },
   {
     name: "Golf de Morfontaine",
@@ -42,7 +56,7 @@ const courses = [
     longitude: 2.6103,
     holes: 18,
     par: 70,
-    courseHoles: [
+    courseHoles: generateHoleCoords(49.1375, 2.6103, [
       { number: 1, par: 4, distance: 365 },
       { number: 2, par: 3, distance: 155 },
       { number: 3, par: 4, distance: 340 },
@@ -61,7 +75,7 @@ const courses = [
       { number: 16, par: 4, distance: 395 },
       { number: 17, par: 4, distance: 345 },
       { number: 18, par: 4, distance: 420 },
-    ],
+    ]),
   },
   {
     name: "Golf du Médoc - Les Châteaux",
@@ -71,7 +85,7 @@ const courses = [
     longitude: -0.7085,
     holes: 18,
     par: 72,
-    courseHoles: [
+    courseHoles: generateHoleCoords(44.9283, -0.7085, [
       { number: 1, par: 4, distance: 375 },
       { number: 2, par: 5, distance: 515 },
       { number: 3, par: 3, distance: 170 },
@@ -90,7 +104,7 @@ const courses = [
       { number: 16, par: 3, distance: 175 },
       { number: 17, par: 4, distance: 410 },
       { number: 18, par: 5, distance: 540 },
-    ],
+    ]),
   },
   {
     name: "Royal Golf Dar Es Salam",
@@ -100,7 +114,7 @@ const courses = [
     longitude: -6.8722,
     holes: 18,
     par: 73,
-    courseHoles: [
+    courseHoles: generateHoleCoords(33.9566, -6.8722, [
       { number: 1, par: 5, distance: 530 },
       { number: 2, par: 4, distance: 385 },
       { number: 3, par: 3, distance: 190 },
@@ -119,7 +133,7 @@ const courses = [
       { number: 16, par: 4, distance: 405 },
       { number: 17, par: 5, distance: 525 },
       { number: 18, par: 4, distance: 440 },
-    ],
+    ]),
   },
   {
     name: "Golf de Palmeraie Marrakech",
@@ -129,7 +143,7 @@ const courses = [
     longitude: -7.9753,
     holes: 18,
     par: 72,
-    courseHoles: [
+    courseHoles: generateHoleCoords(31.6647, -7.9753, [
       { number: 1, par: 4, distance: 365 },
       { number: 2, par: 4, distance: 390 },
       { number: 3, par: 3, distance: 155 },
@@ -148,7 +162,7 @@ const courses = [
       { number: 16, par: 3, distance: 175 },
       { number: 17, par: 4, distance: 420 },
       { number: 18, par: 5, distance: 535 },
-    ],
+    ]),
   },
 ];
 

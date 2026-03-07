@@ -35,12 +35,14 @@ model Course {
 }
 
 model CourseHole {
-  id       String @id @default(cuid())
-  courseId  String
-  number   Int
-  par      Int
-  distance Int
-  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  courseId   String
+  number    Int
+  par       Int
+  distance  Int
+  latitude  Float?
+  longitude Float?
+  course    Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([courseId, number])
   @@map("course_holes")
