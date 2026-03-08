@@ -164,6 +164,27 @@ const courses = [
       { number: 18, par: 5, distance: 535 },
     ]),
   },
+  {
+    name: "Golf Test - Chez Redouane",
+    city: "Ile-de-France",
+    country: "France",
+    latitude: 48.8138,
+    longitude: 2.5036,
+    holes: 9,
+    par: 36,
+    courseHoles: [
+      // Greens placés autour de ta maison (100-500m de distance)
+      { number: 1, par: 4, distance: 350, latitude: 48.8152, longitude: 2.5036 },  // ~150m nord
+      { number: 2, par: 3, distance: 160, latitude: 48.8145, longitude: 2.5058 },  // ~170m nord-est
+      { number: 3, par: 5, distance: 480, latitude: 48.8138, longitude: 2.5072 },  // ~270m est
+      { number: 4, par: 4, distance: 370, latitude: 48.8125, longitude: 2.5060 },  // ~220m sud-est
+      { number: 5, par: 4, distance: 390, latitude: 48.8120, longitude: 2.5036 },  // ~200m sud
+      { number: 6, par: 3, distance: 175, latitude: 48.8125, longitude: 2.5012 },  // ~220m sud-ouest
+      { number: 7, par: 5, distance: 510, latitude: 48.8138, longitude: 2.5000 },  // ~270m ouest
+      { number: 8, par: 4, distance: 400, latitude: 48.8150, longitude: 2.5015 },  // ~200m nord-ouest
+      { number: 9, par: 4, distance: 380, latitude: 48.8148, longitude: 2.5036 },  // ~110m nord
+    ],
+  },
 ];
 
 async function main() {
