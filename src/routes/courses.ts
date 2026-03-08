@@ -51,6 +51,31 @@ coursesRouter.get("/:id", async (req, res) => {
   }
 });
 
+// Update hole positions for a course
+coursesRouter.put("/:id/holes/positions", async (req, res) => {
+  try {
+    const { holes } = req.body as { holes: { id: string; latitude: number; longitude: number }[] };
+    if (!holes || !Array.isArray(holes)) {
+      res.status(400).json({ error: "holes array is required" });
+      return;
+    }
+
+    const updates = await Promise.all(
+      holes.map((h) =>
+        prisma.courseHole.update({
+          where: { id: h.id },
+          data: { latitude: h.latitude, longitude: h.longitude },
+        })
+      )
+    );
+
+    res.json({ updated: updates.length });
+  } catch (error) {
+    console.error("Update hole positions error:", error);
+    res.status(500).json({ error: "Failed to update hole positions" });
+  }
+});
+
 // Create course
 coursesRouter.post("/", async (req, res) => {
   try {
