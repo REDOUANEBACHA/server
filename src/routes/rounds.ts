@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
-import { notifyHandicapUpdate, notifyRoundSummary } from "../services/notifications.js";
+import { notifyHandicapUpdate, notifyRoundSummary, notifyRankingChanges } from "../services/notifications.js";
 
 export const roundsRouter = Router();
 
@@ -36,6 +36,7 @@ roundsRouter.post("/", async (req, res) => {
     const userAfter = await prisma.user.findUnique({ where: { id: userId } });
     if (userAfter && userAfter.handicap !== oldHandicap) {
       notifyHandicapUpdate(userId, oldHandicap, userAfter.handicap).catch(() => {});
+      notifyRankingChanges(userId, oldHandicap, userAfter.handicap).catch(() => {});
     }
     notifyRoundSummary(userId, round.course.name, totalScore, totalPar).catch(() => {});
 

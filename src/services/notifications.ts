@@ -75,6 +75,95 @@ export async function notifyGroupNewMember(groupCreatorId: string, memberName: s
   }]);
 }
 
+// Notify group members when ranking changes after a round
+export async function notifyRankingChanges(userId: string, oldHandicap: number, newHandicap: number) {
+  // Only notify if handicap actually changed
+  if (oldHandicap === newHandicap) return;
+
+  // Find all groups this user belongs to
+  const memberships = await prisma.groupMember.findMany({
+    where: { userId },
+    include: {
+      group: {
+        include: {
+          members: {
+            include: {
+              user: { select: { id: true, name: true, handicap: true, pushToken: true } },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const playerName = memberships[0]?.group.members.find((m) => m.userId === userId)?.user.name;
+  if (!playerName) return;
+
+  const messages: ExpoPushMessage[] = [];
+
+  for (const membership of memberships) {
+    const group = membership.group;
+    const members = group.members.map((m) => m.user);
+
+    // Build old ranking (before handicap change) and new ranking
+    const oldRanking = [...members]
+      .map((m) => ({ ...m, handicap: m.id === userId ? oldHandicap : m.handicap }))
+      .sort((a, b) => a.handicap - b.handicap);
+
+    const newRanking = [...members]
+      .sort((a, b) => a.handicap - b.handicap);
+
+    const oldRank = oldRanking.findIndex((m) => m.id === userId);
+    const newRank = newRanking.findIndex((m) => m.id === userId);
+
+    // Player moved up in ranking
+    if (newRank < oldRank) {
+      // Notify the player who improved
+      const player = members.find((m) => m.id === userId);
+      if (player?.pushToken) {
+        messages.push({
+          to: player.pushToken,
+          title: `${getRankEmoji(newRank)} ${group.name}`,
+          body: `Bravo ! Tu es maintenant ${formatRank(newRank + 1)} du classement !`,
+          data: { screen: `/group/${group.id}` },
+          sound: "default",
+        });
+      }
+
+      // Notify each member who got surpassed
+      for (let i = newRank + 1; i <= oldRank; i++) {
+        const surpassed = newRanking[i];
+        if (surpassed && surpassed.id !== userId && surpassed.pushToken) {
+          const surpassedNewRank = i;
+          messages.push({
+            to: surpassed.pushToken,
+            title: `📉 ${group.name}`,
+            body: `${playerName} t'a dépassé ! Tu es maintenant ${formatRank(surpassedNewRank + 1)}.`,
+            data: { screen: `/group/${group.id}` },
+            sound: "default",
+          });
+        }
+      }
+    }
+  }
+
+  if (messages.length > 0) {
+    await sendPushNotifications(messages);
+  }
+}
+
+function formatRank(rank: number): string {
+  if (rank === 1) return "1er";
+  return `${rank}ème`;
+}
+
+function getRankEmoji(rank: number): string {
+  if (rank === 0) return "🥇";
+  if (rank === 1) return "🥈";
+  if (rank === 2) return "🥉";
+  return "📈";
+}
+
 // Notify all users about a new course
 export async function notifyNewCourse(courseName: string, city: string) {
   const users = await prisma.user.findMany({
