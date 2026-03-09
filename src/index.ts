@@ -6,6 +6,7 @@ import { usersRouter } from "./routes/users.js";
 import { coursesRouter } from "./routes/courses.js";
 import { roundsRouter } from "./routes/rounds.js";
 import { statsRouter } from "./routes/stats.js";
+import { groupsRouter } from "./routes/groups.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,7 @@ app.use("/api/users", usersRouter);
 app.use("/api/courses", coursesRouter);
 app.use("/api/rounds", roundsRouter);
 app.use("/api/stats", statsRouter);
+app.use("/api/groups", groupsRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });

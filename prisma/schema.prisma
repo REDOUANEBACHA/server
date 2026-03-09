@@ -8,16 +8,41 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  handicap  Float    @default(54.0)
-  pushToken String?
-  createdAt DateTime @default(now())
-  rounds    Round[]
+  id           String        @id @default(cuid())
+  name         String
+  email        String        @unique
+  password     String
+  handicap     Float         @default(54.0)
+  pushToken    String?
+  createdAt    DateTime      @default(now())
+  rounds       Round[]
+  groupMembers GroupMember[]
 
   @@map("users")
+}
+
+model Group {
+  id        String        @id @default(cuid())
+  name      String
+  code      String        @unique
+  creatorId String
+  createdAt DateTime      @default(now())
+  members   GroupMember[]
+
+  @@map("groups")
+}
+
+model GroupMember {
+  id       String   @id @default(cuid())
+  groupId  String
+  userId   String
+  role     String   @default("member")
+  joinedAt DateTime @default(now())
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@map("group_members")
 }
 
 model Course {
