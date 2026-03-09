@@ -36,7 +36,7 @@ authRouter.post("/register", async (req, res) => {
 
     res.status(201).json({
       token,
-      user: { id: user.id, name: user.name, email: user.email, handicap: user.handicap, createdAt: user.createdAt },
+      user: { id: user.id, name: user.name, email: user.email, handicap: user.handicap, avatarUrl: user.avatarUrl, createdAt: user.createdAt },
     });
   } catch (error: any) {
     console.error("Register error:", error);
@@ -70,7 +70,7 @@ authRouter.post("/login", async (req, res) => {
 
     res.json({
       token,
-      user: { id: user.id, name: user.name, email: user.email, handicap: user.handicap, createdAt: user.createdAt },
+      user: { id: user.id, name: user.name, email: user.email, handicap: user.handicap, avatarUrl: user.avatarUrl, createdAt: user.createdAt },
     });
   } catch (error) {
     console.error("Login error:", error);
@@ -83,7 +83,7 @@ authRouter.get("/me", authMiddleware, async (req: AuthRequest, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.userId },
-      select: { id: true, name: true, email: true, handicap: true, pushToken: true, createdAt: true },
+      select: { id: true, name: true, email: true, handicap: true, pushToken: true, avatarUrl: true, createdAt: true },
     });
     if (!user) {
       res.status(404).json({ error: "Utilisateur non trouvé" });

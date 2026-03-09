@@ -3,7 +3,7 @@ import { prisma } from "../lib/prisma.js";
 
 export const usersRouter = Router();
 
-const userSelect = { id: true, name: true, email: true, handicap: true, pushToken: true, createdAt: true };
+const userSelect = { id: true, name: true, email: true, handicap: true, pushToken: true, avatarUrl: true, createdAt: true };
 
 // Get user by ID
 usersRouter.get("/:id", async (req, res) => {

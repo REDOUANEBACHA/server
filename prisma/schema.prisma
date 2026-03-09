@@ -14,6 +14,7 @@ model User {
   password     String
   handicap     Float         @default(54.0)
   pushToken    String?
+  avatarUrl    String?
   createdAt    DateTime      @default(now())
   rounds       Round[]
   groupMembers GroupMember[]
