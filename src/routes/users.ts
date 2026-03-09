@@ -3,29 +3,14 @@ import { prisma } from "../lib/prisma.js";
 
 export const usersRouter = Router();
 
-// Create user
-usersRouter.post("/", async (req, res) => {
-  try {
-    const { name, email } = req.body;
-    const user = await prisma.user.create({
-      data: { name, email },
-    });
-    res.status(201).json(user);
-  } catch (error: any) {
-    if (error.code === "P2002") {
-      res.status(409).json({ error: "Email already exists" });
-      return;
-    }
-    console.error("Create user error:", error);
-    res.status(500).json({ error: "Failed to create user", details: error.message });
-  }
-});
+const userSelect = { id: true, name: true, email: true, handicap: true, pushToken: true, createdAt: true };
 
 // Get user by ID
 usersRouter.get("/:id", async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.params.id },
+      select: userSelect,
     });
     if (!user) {
       res.status(404).json({ error: "User not found" });
@@ -43,6 +28,7 @@ usersRouter.get("/email/:email", async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { email: req.params.email },
+      select: userSelect,
     });
     if (!user) {
       res.status(404).json({ error: "User not found" });
@@ -66,6 +52,7 @@ usersRouter.patch("/:id", async (req, res) => {
         ...(handicap !== undefined && { handicap }),
         ...(pushToken && { pushToken }),
       },
+      select: userSelect,
     });
     res.json(user);
   } catch {
