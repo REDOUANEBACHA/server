@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
 import { authMiddleware, AuthRequest } from "../middleware/auth.js";
+import { notifyGroupNewMember } from "../services/notifications.js";
 
 export const groupsRouter = Router();
 
@@ -101,6 +102,12 @@ groupsRouter.post("/join", async (req: AuthRequest, res) => {
         members: { include: { user: { select: { id: true, name: true, handicap: true } } } },
       },
     });
+
+    // Notify group creator
+    const joiner = await prisma.user.findUnique({ where: { id: req.userId! }, select: { name: true } });
+    if (joiner) {
+      notifyGroupNewMember(group.creatorId, joiner.name, group.name, group.id).catch(() => {});
+    }
 
     res.json(fullGroup);
   } catch (error) {

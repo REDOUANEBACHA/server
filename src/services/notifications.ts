@@ -61,6 +61,20 @@ export async function notifyRoundSummary(userId: string, courseName: string, sco
   }]);
 }
 
+// Notify group creator when a new member joins
+export async function notifyGroupNewMember(groupCreatorId: string, memberName: string, groupName: string, groupId: string) {
+  const creator = await prisma.user.findUnique({ where: { id: groupCreatorId } });
+  if (!creator?.pushToken) return;
+
+  await sendPushNotifications([{
+    to: creator.pushToken,
+    title: "Nouveau membre ! 👥",
+    body: `${memberName} a rejoint votre groupe "${groupName}"`,
+    data: { screen: `/group/${groupId}` },
+    sound: "default",
+  }]);
+}
+
 // Notify all users about a new course
 export async function notifyNewCourse(courseName: string, city: string) {
   const users = await prisma.user.findMany({
