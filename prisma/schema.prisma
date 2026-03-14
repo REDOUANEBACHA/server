@@ -110,7 +110,7 @@ model HoleScore {
 }
 
 model SwingVideo {
-  id        String   @id @default(cuid())
+  id        String          @id @default(cuid())
   userId    String
   roundId   String?
   hole      Int?
@@ -118,9 +118,30 @@ model SwingVideo {
   videoUrl  String
   duration  Float?
   notes     String?
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  round     Round?   @relation(fields: [roundId], references: [id], onDelete: SetNull)
+  createdAt DateTime        @default(now())
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  round     Round?          @relation(fields: [roundId], references: [id], onDelete: SetNull)
+  analysis  SwingAnalysis?
 
   @@map("swing_videos")
+}
+
+model SwingAnalysis {
+  id                   String   @id @default(cuid())
+  videoId              String   @unique
+  swingScore           Float
+  tempoRatio           Float?
+  maxHipRotation       Float?
+  maxShoulderRotation  Float?
+  headStability        Float?
+  phases               Json
+  keyAngles            Json
+  tips                 Json
+  totalFrames          Int
+  fps                  Float
+  durationS            Float
+  createdAt            DateTime @default(now())
+  video                SwingVideo @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@map("swing_analyses")
 }
