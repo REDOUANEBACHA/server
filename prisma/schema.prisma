@@ -18,6 +18,7 @@ model User {
   createdAt    DateTime      @default(now())
   rounds       Round[]
   groupMembers GroupMember[]
+  swingVideos  SwingVideo[]
 
   @@map("users")
 }
@@ -85,8 +86,9 @@ model Round {
   weather    String?
   notes      String?
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course     Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  scores     HoleScore[]
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  scores      HoleScore[]
+  swingVideos SwingVideo[]
 
   @@map("rounds")
 }
@@ -103,4 +105,20 @@ model HoleScore {
 
   @@unique([roundId, hole])
   @@map("hole_scores")
+}
+
+model SwingVideo {
+  id        String   @id @default(cuid())
+  userId    String
+  roundId   String?
+  hole      Int?
+  club      String?
+  videoUrl  String
+  duration  Float?
+  notes     String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  round     Round?   @relation(fields: [roundId], references: [id], onDelete: SetNull)
+
+  @@map("swing_videos")
 }
